@@ -28,7 +28,7 @@ jobs:
 
   GitHub-hosted:
     if: ${{ needs.check_runner_status.outputs.runner_status != 'online' }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: checkout
         uses: actions/checkout@v2

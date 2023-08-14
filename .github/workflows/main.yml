@@ -1,0 +1,36 @@
+name: main
+on:
+  push:
+    branches:
+      - main
+jobs:
+  check_runner_status:
+    runs-on: ubuntu-latest
+    outputs:
+      runner_status: ${{ steps.check_runner_status.outputs.runner_status }}
+    steps:
+      - name: Check self-hosted runner status
+        id: check_runner_status
+        run: |
+          RESPONSE=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/iamyou1208/actions-test/actions/runners)
+          echo "$RESPONSE"
+          RUNNER_STATUS=$(echo "$RESPONSE" | jq '.runners[] | select(.name == "hoge") | .status')
+          echo "::set-output name=runner_status::$RUNNER_STATUS"
+
+  self-hosted:
+    if: ${{ needs.check_runner_status.outputs.runner_status == 'online' }}
+    runs-on: self-hosted
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: self
+        run: echo "self-hosted"
+
+  GitHub-hosted:
+    if: ${{ needs.check_runner_status.outputs.runner_status != 'online' }}
+    runs-on: self-hosted
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: github
+        run: echo "GitHub-hosted"

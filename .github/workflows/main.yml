@@ -6,6 +6,9 @@ on:
 jobs:
   check_runner_status:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      checks: write
     outputs:
       runner_status: ${{ steps.check_runner_status.outputs.runner_status }}
     steps:

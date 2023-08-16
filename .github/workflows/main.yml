@@ -6,34 +6,11 @@ on:
 jobs:
   check_runner_status:
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      checks: write
-    outputs:
-      runner_status: ${{ steps.check_runner_status.outputs.runner_status }}
     steps:
-      - name: Check self-hosted runner status
-        id: check_runner_status
+      - name: test
+        id: test
+        run: echo "test"
+      - name: echo
         run: |
-          RESPONSE=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/iamyou1208/actions-test/actions/runners)
-          echo "$RESPONSE"
-          RUNNER_STATUS=$(echo "$RESPONSE" | jq '.runners[] | select(.name == "hoge") | .status')
-          echo "::set-output name=runner_status::$RUNNER_STATUS"
+          echo "--id $(git log -n 1 --pretty=format:%h) --message $(git log -n 1 --pretty=format:%s) --result ${{ steps.test.outcome }}"
 
-  self-hosted:
-    if: ${{ needs.check_runner_status.outputs.runner_status == 'online' }}
-    runs-on: self-hosted
-    steps:
-      - name: checkout
-        uses: actions/checkout@v2
-      - name: self
-        run: echo "self-hosted"
-
-  GitHub-hosted:
-    if: ${{ needs.check_runner_status.outputs.runner_status != 'online' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v2
-      - name: github
-        run: echo "GitHub-hosted"
